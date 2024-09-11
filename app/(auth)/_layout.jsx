@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const Profile = () => {
+const AuthLayout = () => {
   return (
-    <View >
-      <Text className="text-xl">Profile</Text>
+    <View>
+      <Text>AuthLayout</Text>
     </View>
   )
 }
 
-export default Profile
+export default AuthLayout
 
 const styles = StyleSheet.create({})
