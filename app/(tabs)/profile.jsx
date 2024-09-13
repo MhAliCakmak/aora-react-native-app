@@ -1,24 +1,30 @@
-import { useEffect } from "react";
-import { useLocalSearchParams } from "expo-router";
-import { View, Text, FlatList, Image } from "react-native";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Image, FlatList, TouchableOpacity } from "react-native";
 
-import useAppwrite from "../../lib/useAppwrite";
-
-import EmptyState from "../../components/EmptyState";
-import VideoCard from "../../components/VideoCard";
-import SearchInput from "../../components/SearchInput";
-import { searchPosts } from "../../lib/appwrite";
 import { icons } from "../../constants";
+import useAppwrite from "../../lib/useAppwrite";
+import { getUserPosts, signOut } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
+import { EmptyState, InfoBox, VideoCard } from "../../components";
 
 const Profile = () => {
   const { user, setUser, setIsLogged } = useGlobalContext();
+  const { data: posts } = useAppwrite(() => getUserPosts(user.$id));
+
+  const logout = async () => {
+    await signOut();
+    setUser(null);
+    setIsLogged(false);
+
+    router.replace("/sign-in");
+  };
+
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={[]}
+        data={posts}
         keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
           <VideoCard
@@ -29,48 +35,53 @@ const Profile = () => {
             avatar={item.creator.avatar}
           />
         )}
-        ListHeaderComponent={() => (
-          <>
-            <View className="flex my-6 px-6 items-end flex-col ">
-              <Image
-                source={icons.logout}
-                className="w-6 h-6"
-                resizeMode="contain"
-              />
-            </View>
-            <View className="flex justify-center flex-col items-center ">
-              <Image
-                source={{ uri: user?.avatar }}
-                className="w-24 h-24 rounded-xl border border-3 border-secondary-100"
-                resizeMode="contain"
-              />
-              <View className="mt-4 items-center">
-                <Text className="text-white text-2xl font-psemibold">
-                  {user?.username}
-                </Text>
-                <Text className="text-gray-100 text-sm font-pmedium">
-                  {user?.email}
-                </Text>
-              </View>
-              <View className="mt-6 flex flex-row gap-5">
-                <View className="flex flex-col">
-                  <Text className="text-white text-2xl font-psemibold">0</Text>
-                  <Text className="text-gray-100 text-sm font-pmedium">
-                    Videos
-                  </Text>
-
-                </View>
-                
-
-              </View>
-            </View>
-          </>
-        )}
         ListEmptyComponent={() => (
           <EmptyState
             title="No Videos Found"
-            subtitle="No videos found for this search query"
+            subtitle="No videos found for this profile"
           />
+        )}
+        ListHeaderComponent={() => (
+          <View className="w-full flex justify-center items-center mt-6 mb-12 px-4">
+            <TouchableOpacity
+              onPress={logout}
+              className="flex w-full items-end mb-10"
+            >
+              <Image
+                source={icons.logout}
+                resizeMode="contain"
+                className="w-6 h-6"
+              />
+            </TouchableOpacity>
+
+            <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
+              <Image
+                source={{ uri: user?.avatar }}
+                className="w-[90%] h-[90%] rounded-lg"
+                resizeMode="contain"
+              />
+            </View>
+
+            <InfoBox
+              title={user?.username}
+              containerStyles="mt-5"
+              titleStyles="text-lg"
+            />
+
+            <View className="mt-5 flex flex-row">
+              <InfoBox
+                title={posts.length || 0}
+                subtitle="Posts"
+                titleStyles="text-xl"
+                containerStyles="mr-10"
+              />
+              <InfoBox
+                title="1.2k"
+                subtitle="Followers"
+                titleStyles="text-xl"
+              />
+            </View>
+          </View>
         )}
       />
     </SafeAreaView>
