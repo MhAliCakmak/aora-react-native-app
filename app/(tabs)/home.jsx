@@ -13,45 +13,25 @@ import SearchInput from "../../components/SearchInput";
 import Trending from "../../components/Trending";
 import EmptyState from "../../components/EmptyState";
 import { getAllPosts } from "../../lib/appwrite";
+import useAppwrite from "../../lib/useAppwrite";
+import VideoCard from "../../components/VideoCard";
 
 const Home = () => {
-  const [data, setData] = React.useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchData = async () => {
-        setIsLoading(true);
-        try {
-          const response = await getAllPosts();
-          setData(response);
-        } catch (error) {
-          Alert.alert("Error", error.message);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-    };
-  }, []);
-
+  const { data: posts, refetch } = useAppwrite(getAllPosts);
   const [refreshing, setRefreshing] = React.useState(false);
-  
-  const onRefresh = React.useCallback(() => {
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
+    await refetch();
+    setRefreshing(false);
+  };
+  console.log(posts);
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
         data={[]}
         keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => (
-          <View>
-            <Text className="text-3xl text-white">{item.id}</Text>
-          </View>
-        )}
+        renderItem={({ item }) => <VideoCard video={item} />}
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-4">
             <View className="justify-between items-start flex-row mb-6">
