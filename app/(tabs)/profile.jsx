@@ -20,7 +20,6 @@ const Profile = () => {
     router.replace("/sign-in");
   };
 
-
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
@@ -58,7 +57,7 @@ const Profile = () => {
               <Image
                 source={{ uri: user?.avatar }}
                 className="w-[90%] h-[90%] rounded-lg"
-                resizeMode="contain"
+                resizeMode="cover"
               />
             </View>
 
